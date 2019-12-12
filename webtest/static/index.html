@@ -172,9 +172,9 @@
         lineChartData.labels.push(lb+parseInt((report.Tmsp-firstreport.Tmsp)/1000000000))
         lineChartData.datasets[0].data.push(report.Succ-firstreport.Succ)
         lineChartData.datasets[1].data.push(report.Err-firstreport.Err)
-
-        lineChartData.datasets[0].label = "success("+ parseInt(report.Succ/report.Second)+"/s,"+report.Succ+")";
-        lineChartData.datasets[1].label = "error("+parseInt(report.Err/report.Second)+"/s,"+report.Err+")";
+        var sec = lineChartData.labels[lineChartData.labels.length-1];
+        lineChartData.datasets[0].label = "success("+ parseInt(report.Succ/sec)+"/s,"+report.Succ+")";
+        lineChartData.datasets[1].label = "error("+parseInt(report.Err/sec)+"/s,"+report.Err+")";
         //LineChart.reset()
         LineChart.update()
         firstreport = report
