@@ -1,14 +1,13 @@
-package webtest
+package main
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 
-	"net/http"
 	"github.com/satori/go.uuid"
+	"net/http"
 )
-
 
 type Client struct {
 	id     string
@@ -16,36 +15,36 @@ type Client struct {
 	send   chan []byte
 }
 type Message struct {
-	CID string
+	CID     string
 	Message []byte
 }
+
 func NewWSServer() *WSServer {
 	return &WSServer{
-		UnRegist:make(chan *Client,10),
-		Regist:make( chan *Client,10),
-		clients:make( map[string]*Client),
-		Notify:make(chan Message,10),
-		Handles:make(map[int]func([]byte)),
+		UnRegist: make(chan *Client, 10),
+		Regist:   make(chan *Client, 10),
+		clients:  make(map[string]*Client),
+		Notify:   make(chan Message, 10),
+		Handles:  make(map[int]func([]byte)),
 	}
 
 }
 
 type WSServer struct {
 	UnRegist chan *Client
-	Regist chan *Client
-	Notify chan Message
-	clients map[string]*Client
-
+	Regist   chan *Client
+	Notify   chan Message
+	clients  map[string]*Client
 
 	chreport chan *HttpReport
-	Handles map[int]func([]byte)
-
+	Handles  map[int]func([]byte)
 }
+
 func (this *WSServer) DoClientClose(closeclient *Client) {
 
 	delete(this.clients, closeclient.id)
 }
-func (this *WSServer) writeWork(){
+func (this *WSServer) writeWork() {
 	for {
 		select {
 		case newcli := <-this.Regist:
@@ -88,14 +87,14 @@ func (this *WSServer) writeWork(){
 		}
 	}
 }
-func (this *WSServer) clientRead(c *Client){
+func (this *WSServer) clientRead(c *Client) {
 	defer func() {
 		this.UnRegist <- c
 		c.socket.Close()
 	}()
 	defer func() {
-		err:=recover();
-		if err!=nil{
+		err := recover()
+		if err != nil {
 			fmt.Println(err)
 		}
 	}()
@@ -107,22 +106,22 @@ func (this *WSServer) clientRead(c *Client){
 			break
 		}
 		cmd := make(map[string]interface{})
-		e:= json.Unmarshal(message,&cmd)
-		if e!=nil{
+		e := json.Unmarshal(message, &cmd)
+		if e != nil {
 			this.UnRegist <- c
 			c.socket.Close()
 			break
 		}
-		cid,ok := cmd[KEY_CMD]
-		if !ok{
+		cid, ok := cmd[KEY_CMD]
+		if !ok {
 			this.UnRegist <- c
 			c.socket.Close()
 			break
 		}
 		ccid := int(cid.(float64))
 		//ccid := cid.(int)
-		h,ok := this.Handles[ccid]
-		if ok{
+		h, ok := this.Handles[ccid]
+		if ok {
 			h(message)
 		}
 	}
@@ -137,11 +136,7 @@ func (this *WSServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	uid := uuid.NewV4()
 	client := &Client{id: uid.String(), socket: conn, send: make(chan []byte)}
 
-
 	this.Regist <- client
 
 	go this.clientRead(client)
 }
-
-
-
