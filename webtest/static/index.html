@@ -190,6 +190,14 @@
     //
     // },1000)
 
+    var curWwwPath=window.document.location.href;
+    //获取主机地址之后的目录如：/Tmall/index.jsp
+    var pathName=window.document.location.pathname;
+    var xxidx = curWwwPath.indexOf("//");
+    var hostname = curWwwPath.substr(xxidx +2,curWwwPath.length-xxidx-2 -pathName.length )
+    var pos=curWwwPath.indexOf(pathName);
+    //获取主机地址，如：//localhost:8080
+    var localhostPaht=curWwwPath.substring(0,pos);
 
     var sock = null;
     var CMD_CONFIG = 2;
@@ -197,10 +205,10 @@
     var CMD_STOP = 4;
     var CMD_SAVE = 5;
     //服务器的地址
-    var wsuri = "ws://localhost:8787/ws";
+    var wsuri = "ws://"+hostname+"/ws";
     var g_cfg={
         CMD:CMD_CONFIG,
-        Url :"http://localhost:21212",
+        Url :"http://"+hostname,
         Worker : "5",
         Times :"0",
         RequestData :"",
