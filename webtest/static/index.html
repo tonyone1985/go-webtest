@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Bootstrap 实例 - 水平表单</title>
+<!--    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>  -->
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/vue.min.js"></script>
+    <script src="/js/Chart.min.js"></script>
+</head>
+<body>
+
+<form class="form-horizontal" role="form">
+    <div id="dvcfg">
+    <div class="form-group">
+        <label for="txtUrl" class="col-sm-2 control-label">Url</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="txtUrl" v-model="Url"
+                   placeholder="Url">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="txtWorker" class="col-sm-2 control-label">Worker</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="txtWorker" v-model="Worker"
+                   placeholder="Worker">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="txtMaxPoint" class="col-sm-2 control-label">MaxPoint</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="txtMaxPoint" v-model="MaxPoint"
+                   placeholder="MaxPoint">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="txtTimes" class="col-sm-2 control-label">Times</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="txtTimes" v-model="Times"
+                   placeholder="Times">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="txtRequestData" class="col-sm-2 control-label">RequestData</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="txtRequestData" v-model="RequestData"
+                   placeholder="RequestData">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="txtMethod" class="col-sm-2 control-label">Method</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="txtMethod" v-model="Method"
+                   placeholder="RequestData">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="txtTotal" class="col-sm-2 control-label">Total</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="txtMethod" v-model="Total"
+                   placeholder="Total">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="txtInterval" class="col-sm-2 control-label">Interval</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="txtInterval" v-model="Interval"
+                   placeholder="Interval">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-default" v-on:click="submit()">提交</button>
+            <button type="button" class="btn btn-default" v-on:click="start()">开始</button>
+            <button type="button" class="btn btn-default" v-on:click="stop()">停止</button>
+        </div>
+    </div>
+    </div>
+
+    <div style="">
+    <canvas id="lines-graph" width="400" height="100"></canvas>
+    </div>
+</form>
+<script>
+    var lineChartData = {
+        labels: [],
+        datasets: [
+            {
+                label: "success",
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: "rgba(75,192,192,0.4)",
+                borderColor: "rgba(75,192,192,1)",
+                borderCapStyle: 'butt',
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: 'miter',
+                pointBorderColor: "rgba(75,192,192,1)",
+                pointBackgroundColor: "#fff",
+                pointBorderWidth: 1,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                pointHoverBorderWidth: 2,
+                pointRadius: 1,
+                pointHitRadius: 10,
+                data: [],
+                spanGaps: false,
+            },{
+                label: "error",
+                fill: false,
+                lineTension: 0.1,
+                backgroundColor: "rgba(75,192,192,0.4)",
+                borderColor: "rgba(192,0,0,1)",
+                borderCapStyle: 'butt',
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: 'miter',
+                pointBorderColor: "rgba(75,192,192,1)",
+                pointBackgroundColor: "#fff",
+                pointBorderWidth: 1,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                pointHoverBorderWidth: 2,
+                pointRadius: 1,
+                pointHitRadius: 10,
+                data: [],
+                spanGaps: false,
+            }
+        ]
+    };
+
+
+    var ctx = document.getElementById("lines-graph").getContext("2d");
+    var LineChart = new Chart(ctx, {
+        type: 'line',
+        data: lineChartData,
+        responsive: true,
+        bezierCurve : false
+    });
+    var ci = lineChartData.labels.length
+    var firstreport = null
+    function resetchat() {
+        firstreport = null;
+        lineChartData.labels=[];
+        lineChartData.datasets[0].data=[];
+        lineChartData.datasets[1].data=[];
+        lineChartData.datasets[0].label = "success";
+        lineChartData.datasets[1].label = "error";
+        LineChart.update();
+    }
+    function AddPoint(report){
+        if(firstreport==null){
+            firstreport = report;
+        }
+        lb = 0
+        if (lineChartData.labels.length>0)
+            lb = lineChartData.labels[lineChartData.labels.length-1]
+        if(lineChartData.labels.length>parseInt(g_cfg.MaxPoint)){
+            lineChartData.labels.splice(0,1);
+            lineChartData.datasets[0].data.splice(0,1);
+            lineChartData.datasets[1].data.splice(0,1);
+        }
+
+        lineChartData.labels.push(lb+parseInt((report.Tmsp-firstreport.Tmsp)/1000000000))
+        lineChartData.datasets[0].data.push(report.Succ-firstreport.Succ)
+        lineChartData.datasets[1].data.push(report.Err-firstreport.Err)
+
+        lineChartData.datasets[0].label = "success("+ parseInt(report.Succ/report.Second)+"/s,"+report.Succ+")";
+        lineChartData.datasets[1].label = "error("+parseInt(report.Err/report.Second)+"/s,"+report.Err+")";
+        //LineChart.reset()
+        LineChart.update()
+        firstreport = report
+    }
+
+    // setInterval(function () {
+    //     lineChartData.labels.push(ci)
+    //     lineChartData.datasets[0].data.push(100*Math.random())
+    //     lineChartData.datasets[1].data.push(100*Math.random())
+    //     ci++
+    //     LineChart.reset()
+    //
+    //
+    // },1000)
+
+
+    var sock = null;
+    var CMD_CONFIG = 2;
+    var CMD_START =3;
+    var CMD_STOP = 4;
+    var CMD_SAVE = 5;
+    //服务器的地址
+    var wsuri = "ws://localhost:8787/ws";
+    var g_cfg={
+        CMD:CMD_CONFIG,
+        Url :"http://localhost:21212",
+        Worker : "5",
+        Times :"0",
+        RequestData :"",
+        Method :"POST",
+        Total :"10000000",
+        Interval :"1",
+        MaxPoint:"100"
+    };
+    new Vue({
+        el: '#dvcfg',
+        data: g_cfg,
+        methods:{
+            submit:function () {
+                sock.send( JSON.stringify(g_cfg));
+                resetchat();
+            },
+            start:function () {
+                sock.send( JSON.stringify({CMD:CMD_START}));
+            },
+            stop:function () {
+                sock.send( JSON.stringify({CMD:CMD_STOP}));
+            }
+        }
+    });
+
+    function connect(){
+        console.log("onload");
+        sock = new WebSocket(wsuri);
+        sock.onopen = function() {
+            //成功连接到服务器
+            console.log("connected to " + wsuri);
+        }
+        sock.onclose = function(e) {
+            console.log("connection closed (" + e.code + ")");
+            connect();
+        }
+        sock.onmessage = function(e) {
+            //服务器发送通知
+            //开始处理
+            console.log("message received: " + e.data);
+            AddPoint(JSON.parse(e.data).Message)
+        }
+
+    }
+    window.onload = function() {
+        connect();
+    };
+</script>
+</body>
+</html>
